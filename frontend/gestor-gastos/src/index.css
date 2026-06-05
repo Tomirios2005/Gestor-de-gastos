@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply bg-slate-950 text-gray-100 font-sans;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium transition-all active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors;
+  }
+
+  .card {
+    @apply bg-slate-800 border border-white/5 rounded-xl;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 bg-slate-900 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors;
+  }
+
+  .badge {
+    @apply inline-block px-3 py-1 bg-purple-600/20 text-purple-300 text-sm rounded-full;
+  }
+}
