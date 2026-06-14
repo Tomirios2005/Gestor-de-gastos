@@ -51,6 +51,7 @@ export default function Transactions() {
 
 
   async function load() {
+    //todo filters
     setLoading(true)
     const  transactions  = await getTransactions();
     setTransactions(transactions ?? [])
