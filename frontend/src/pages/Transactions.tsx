@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { getTransactions } from '../services/transactions'
+import { getTransactions, insertTransaction } from '../services/transactions'
 import{useAuth} from '../hooks/useAuth'
 interface Transaction {
   id: string
@@ -92,7 +92,7 @@ export default function Transactions() {
     if (editing) {
       await supabase.from('transactions').update(payload).eq('id', editing.id)
     } else {
-      await supabase.from('transactions').insert(payload)
+      await insertTransaction(payload)
     }
 
     setSaving(false)
