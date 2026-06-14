@@ -24,6 +24,7 @@ export function useAuth(): AuthState {
       setSession(session)
       setUser(session?.user ?? null)
     })
+    console.log('Auth state change subscription set up'+user);
 
     return () => subscription.unsubscribe()
   }, [])

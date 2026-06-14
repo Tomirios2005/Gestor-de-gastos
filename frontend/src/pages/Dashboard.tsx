@@ -190,7 +190,7 @@ export default function Dashboard() {
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)' // Sombra elegante
         }}
         labelStyle={{ color: 'rgba(255,255,255,0.6)', marginBottom: 6, fontWeight: 500 }}
-        itemStyle={{ paddingVertical: 2 }}
+        itemStyle={{ paddingTop: 2 }}
         formatter={(value: any) => [fmt(Number(value)), '']} // Dejamos que el nombre lo maneje el Key nativo de forma limpia
         cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4' }} // Línea guía discontinua
       />
@@ -198,7 +198,7 @@ export default function Dashboard() {
       {/* 2. Añadimos la Leyenda nativa con estilos premium */}
       <Legend 
         verticalAlign="top" 
-        alignment="right"
+        align="right"
         height={36}
         iconType="circle"
         iconSize={8}

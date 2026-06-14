@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import{useAuth} from '../hooks/useAuth'
 
 interface TransactionCard {
   type: 'expense' | 'income'
@@ -32,6 +33,8 @@ const SUGGESTIONS = [
 ]
 
 export default function Chat() {
+  const { session } = useAuth()
+  console.log('Chat component session:', session); // Debugging line to check the session value
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '0',

@@ -14,6 +14,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       <div className="spinner" />
     </div>
   )
+  console.log('ProtectedRoute user:', user); // Debugging line to check the user value
 
   return user ? <>{children}</> : <Navigate to="/login" replace />
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-
+import { getTransactions } from '../services/transactions'
+import{useAuth} from '../hooks/useAuth'
 interface Transaction {
   id: string
   type: 'expense' | 'income'
@@ -34,6 +35,8 @@ function fmt(n: number) {
 const EMPTY_FORM = { type: 'expense' as 'expense'|'income', amount: '', category: 'other', description: '', date: new Date().toISOString().split('T')[0] }
 
 export default function Transactions() {
+  const { session } = useAuth()
+  console.log('Transactions component session:', session); // Debugging line to check the session value
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading]           = useState(true)
   const [filterType, setFilterType]     = useState('')
@@ -46,15 +49,11 @@ export default function Transactions() {
   const [saving, setSaving]             = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
+
   async function load() {
     setLoading(true)
-    let query = supabase.from('transactions').select('*').order('date', { ascending: false })
-    if (filterType) query = query.eq('type', filterType)
-    if (filterCat)  query = query.eq('category', filterCat)
-    if (filterFrom) query = query.gte('date', filterFrom)
-    if (filterTo)   query = query.lte('date', filterTo)
-    const { data } = await query
-    setTransactions(data ?? [])
+    const  transactions  = await getTransactions();
+    setTransactions(transactions ?? [])
     setLoading(false)
   }
 
