@@ -18,7 +18,7 @@ export async function insertTransaction(transaction, userId) {
   return data
 }
 
-export async function getTransactions(userId, { from, to, type } = {}) {
+export async function getTransactions(userId, { from, to, type, category } = {}) {
   let query = supabase
     .from('transactions')
     .select('*')
@@ -28,7 +28,7 @@ export async function getTransactions(userId, { from, to, type } = {}) {
   if (from) query = query.gte('date', from)
   if (to)   query = query.lte('date', to)
   if (type) query = query.eq('type', type)
-
+  if (category) query = query.eq('category', category)
   const { data, error } = await query
   if (error) throw error
   return data

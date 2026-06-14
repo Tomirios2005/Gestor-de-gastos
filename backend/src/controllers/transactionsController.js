@@ -15,8 +15,9 @@ export async function getData(req, res) {
     try {
         const userId = req.user.id;
         console.log('Fetching transactions for user:', userId);
-        const { from, to, type } = req.query;
-        const transactions = await getTransactions(userId, { from, to, type });
+        const { from, to, type, category } = req.query;
+        console.log('Query parameters:', { from, to, type, category });
+        const transactions = await getTransactions(userId, { from, to, type, category });
         res.json({ transactions });
     } catch (error) {
         console.error('Error fetching transactions:', error);

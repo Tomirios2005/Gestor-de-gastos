@@ -1,8 +1,16 @@
-const url= 'http://localhost:3000';
-export const getTransactions = async () => {
+const url= 'http://localhost:3000'; // Change this to your backend URL if different
+interface filters{
+    from?: string
+    to?: string
+    type?: string
+    category?: string
+}
+export const getTransactions = async (filters:filters) => {
 const userData = JSON.parse(localStorage.getItem('sb-cypvsvoaleucsdgaiins-auth-token') || '{}');
     try {
-        const response = await fetch(`${url}/api/transactions`, {
+                    console.log('Fetching transactions with filters:', filters); // Debugging line to check the filters being sent
+
+        const response = await fetch(`${url}/api/transactions?${new URLSearchParams(filters as Record<string,string>)}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
