@@ -33,6 +33,21 @@ export async function getTransactions(userId, { from, to, type, category } = {})
   if (error) throw error
   return data
 }
+export async function updateTransaction(id, transaction, userId) {
+  const { error } = await supabase
+    .from('transactions')
+    .update({
+      type: transaction.type,
+      amount: transaction.amount,
+      category: transaction.category,
+      description: transaction.description,
+      date: transaction.date
+    })
+    .eq('id', id)
+    .eq('user_id', userId)
+
+  if (error) throw error
+}
 
 export async function deleteTransaction(id, userId) {
   const { error } = await supabase

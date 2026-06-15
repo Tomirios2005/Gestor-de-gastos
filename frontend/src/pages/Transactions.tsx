@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { getTransactions, insertTransaction } from '../services/transactions'
+import { getTransactions, insertTransaction, updateTransaction, deleteTransaction } from '../services/transactions'
 import{useAuth} from '../hooks/useAuth'
-interface Transaction {
-  id: string
+import { toast } from 'sonner';
+export interface Transaction {
+  id?: string
   type: 'expense' | 'income'
   amount: number
   category: string
@@ -84,7 +85,10 @@ export default function Transactions() {
   }
 
   async function handleSave() {
-    if (!form.amount || !form.description || !form.date) return
+    if (!form.amount || !form.description || !form.date){
+      toast.error('Por favor completa todos los campos');
+      return;
+    } 
     setSaving(true)
 
     const payload = {
@@ -96,9 +100,22 @@ export default function Transactions() {
     }
 
     if (editing) {
-      await supabase.from('transactions').update(payload).eq('id', editing.id)
+      try{
+      await updateTransaction({ id: editing.id!, ...payload })
+      toast.success('Transacción actualizada')
+      }catch(error){
+        console.error('Error updating transaction:', error);
+      toast.error('error al actualizar la transacción');
+
+      }
     } else {
+      try{
       await insertTransaction(payload)
+      toast.success('Transacción creada')
+      }catch(error){
+        console.error('Error creating transaction:', error);
+      toast.error('error al crear la transacción');
+      }
     }
 
     setSaving(false)
@@ -107,7 +124,7 @@ export default function Transactions() {
   }
 
   async function handleDelete(id: string) {
-    await supabase.from('transactions').delete().eq('id', id)
+    await deleteTransaction(id);
     setConfirmDelete(null)
     load()
   }
@@ -239,7 +256,7 @@ export default function Transactions() {
                         ✏️
                       </button>
                       <button 
-                        onClick={() => setConfirmDelete(t.id)}
+                        onClick={() => setConfirmDelete(t.id??'')}
                         className="px-2 py-1 text-sm opacity-60 hover:opacity-100 hover:bg-red-500/20 rounded transition-all"
                         title="Eliminar"
                       >

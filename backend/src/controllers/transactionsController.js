@@ -1,4 +1,4 @@
-import {insertTransaction, getTransactions} from '../services/transactionService.js';
+import {insertTransaction, getTransactions, updateTransaction, deleteTransaction} from '../services/transactionService.js';
 
 export async function insertData(req, res) {
     try {
@@ -22,5 +22,28 @@ export async function getData(req, res) {
     } catch (error) {
         console.error('Error fetching transactions:', error);
         res.status(500).json({ error: 'Error al obtener las transacciones' });
+    }
+}
+export async function updateData(req, res) {
+    try {
+        const userId = req.user.id;
+        const { id, ...transaction } = req.body;
+        await updateTransaction(id, transaction, userId);
+        res.json({ message: 'Transacción actualizada' });
+    } catch (error) {
+        console.error('Error updating transaction:', error);
+        res.status(500).json({ error: 'Error al actualizar la transacción' });
+    }
+}
+
+export async function deleteData(req, res) {
+    try {
+        const userId = req.user.id;
+        const { id } = req.body;
+        await deleteTransaction(id, userId);
+        res.json({ message: 'Transacción eliminada' });
+    } catch (error) {
+        console.error('Error deleting transaction:', error);
+        res.status(500).json({ error: 'Error al eliminar la transacción' });
     }
 }

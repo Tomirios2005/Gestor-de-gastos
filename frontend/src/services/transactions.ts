@@ -1,3 +1,4 @@
+import type {Transaction} from '../pages/Transactions';
 const url= 'http://localhost:3000'; // Change this to your backend URL if different
 interface filters{
     from?: string
@@ -29,7 +30,7 @@ const userData = JSON.parse(localStorage.getItem('sb-cypvsvoaleucsdgaiins-auth-t
         throw error;
     }
 };
-export const insertTransaction = async (transaction: { type: string; amount: number; category: string; description: string; date: string }) => {
+export const insertTransaction = async (transaction:Transaction) => {
     const userData = JSON.parse(localStorage.getItem('sb-cypvsvoaleucsdgaiins-auth-token') || '{}');
     try {
         const response = await fetch(`${url}/api/transactions`, {
@@ -48,6 +49,50 @@ export const insertTransaction = async (transaction: { type: string; amount: num
         return data.transaction;
     } catch (error) {
         console.error('Error inserting transaction:', error);
+        throw error;
+    }
+};
+export const updateTransaction = async (transaction:Transaction) => {
+    const userData = JSON.parse(localStorage.getItem('sb-cypvsvoaleucsdgaiins-auth-token') || '{}');
+    try {
+        const response = await fetch(`${url}/api/transactions`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userData.access_token}`
+            },
+            body: JSON.stringify(transaction)
+        });
+        if (!response.ok) {
+            throw new Error('Error updating transaction');
+        }
+        const data = await response.json();
+        console.log('Updated transaction:', data); // Debugging line to check the updated transaction response
+        return data.transaction;
+    } catch (error) {
+        console.error('Error updating transaction:', error);
+        throw error;
+    }
+};
+export const deleteTransaction = async (id:string) => {
+    const userData = JSON.parse(localStorage.getItem('sb-cypvsvoaleucsdgaiins-auth-token') || '{}');
+    try {
+        const response = await fetch(`${url}/api/transactions`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${userData.access_token}`
+            },
+            body: JSON.stringify({id})
+        });
+        if (!response.ok) {
+            throw new Error('Error deleting transaction');
+        }
+        const data = await response.json();
+        console.log('Deleted transaction:', data); // Debugging line to check the deleted transaction response
+        return data.message;
+    } catch (error) {
+        console.error('Error deleting transaction:', error);
         throw error;
     }
 };
