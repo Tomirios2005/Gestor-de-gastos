@@ -216,6 +216,7 @@ Tablas requeridas:
 CREATE TABLE transactions (
   id UUID PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users,
+  type VARCHAR(50),
   amount DECIMAL(10, 2) NOT NULL,
   description TEXT,
   category VARCHAR(50),
