@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react'
 import {useTransactions} from '../context/TransactionContext'
 import { useAuth } from '../hooks/useAuth'
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts'
 import type {Transaction} from '../lib/models'

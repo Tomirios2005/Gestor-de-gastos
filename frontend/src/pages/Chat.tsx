@@ -123,7 +123,7 @@ export default function Chat() {
             <div className={msg.role === 'user' ? 'flex flex-col items-end' : 'flex flex-col'}>
               <div className={`px-4 py-2 rounded-2xl ${
                 msg.role === 'user'
-                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-br-none'
+                  // ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-br-none'
                   : 'bg-slate-800 text-gray-100 border border-white/5 rounded-bl-none'
               }`}>
                 {msg.loading ? (
