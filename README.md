@@ -224,16 +224,7 @@ CREATE TABLE transactions (
 );
 ```
 
-### `chat_history` (opcional)
-```sql
-CREATE TABLE chat_history (
-  id UUID PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES auth.users,
-  message TEXT NOT NULL,
-  response TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+
 
 ---
 
@@ -319,13 +310,13 @@ docker build -t mi-app .
 
 ## 📄 Licencia
 
-ISC - © 2025 Tomás Ríos
+ISC - © 2026 Tomás Ríos
 
 ---
 
 ## 👨‍💻 Autor
 
-**Tomás Ríos** - [Portafolio](https://tu-portfolio.com)
+**Tomás Ríos** - [Portafolio](https://tomirios2005.github.io/ReactPortfolio/)
 
 ---
 
@@ -335,4 +326,4 @@ Para reportar problemas o sugerencias, abre un issue en el repositorio.
 
 ---
 
-**Última actualización:** Junio 2025
+**Última actualización:** Junio 2026
