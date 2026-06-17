@@ -1,12 +1,7 @@
-import type {Transaction} from '../pages/Transactions';
+import type {Transaction, Filters} from '../lib/models'
 const url= 'http://localhost:3000'; // Change this to your backend URL if different
-interface filters{
-    from?: string
-    to?: string
-    type?: string
-    category?: string
-}
-export const getTransactions = async (filters:filters) => {
+
+export const getTransactions = async (filters:Filters) => {
 const userData = JSON.parse(localStorage.getItem('sb-cypvsvoaleucsdgaiins-auth-token') || '{}');
     try {
                     console.log('Fetching transactions with filters:', filters); // Debugging line to check the filters being sent
@@ -46,7 +41,7 @@ export const insertTransaction = async (transaction:Transaction) => {
         }
         const data = await response.json();
         console.log('Inserted transaction:', data); // Debugging line to check the inserted transaction response
-        return data.transaction;
+        return data.data;
     } catch (error) {
         console.error('Error inserting transaction:', error);
         throw error;

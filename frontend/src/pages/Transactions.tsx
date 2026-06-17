@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
 import { getTransactions, insertTransaction, updateTransaction, deleteTransaction } from '../services/transactions'
 import{useAuth} from '../hooks/useAuth'
+import {useTransactions}from '../context/TransactionContext'
 import { toast } from 'sonner';
 export interface Transaction {
   id?: string
@@ -49,6 +49,7 @@ export default function Transactions() {
   const [form, setForm]                 = useState(EMPTY_FORM)
   const [saving, setSaving]             = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const {editTransaction, removeTransaction, addTransaction, transactions:dTransactions}=useTransactions()
 
 
   async function load() {
@@ -58,6 +59,7 @@ export default function Transactions() {
       type: filterType,
       category: filterCat
     }
+    //por defecto todas
     setLoading(true)
     const  transactions  = await getTransactions(filters);
     setTransactions(transactions ?? [])
@@ -91,7 +93,7 @@ export default function Transactions() {
     } 
     setSaving(true)
 
-    const payload = {
+    const payload:Transaction = {
       type: form.type,
       amount: parseFloat(form.amount),
       category: form.category,
@@ -101,7 +103,8 @@ export default function Transactions() {
 
     if (editing) {
       try{
-      await updateTransaction({ id: editing.id!, ...payload })
+      // await updateTransaction({ id: editing.id!, ...payload })
+      await editTransaction({id:editing.id,...payload})
       toast.success('Transacción actualizada')
       }catch(error){
         console.error('Error updating transaction:', error);
@@ -110,7 +113,8 @@ export default function Transactions() {
       }
     } else {
       try{
-      await insertTransaction(payload)
+      await addTransaction(payload)
+      console.log(dTransactions)
       toast.success('Transacción creada')
       }catch(error){
         console.error('Error creating transaction:', error);
@@ -124,7 +128,7 @@ export default function Transactions() {
   }
 
   async function handleDelete(id: string) {
-    await deleteTransaction(id);
+    await removeTransaction(id);
     setConfirmDelete(null)
     load()
   }

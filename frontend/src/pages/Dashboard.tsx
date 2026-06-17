@@ -1,19 +1,11 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import {useTransactions} from '../context/TransactionContext'
 import { useAuth } from '../hooks/useAuth'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts'
-
-interface Transaction {
-  id: string
-  type: 'expense' | 'income'
-  amount: number
-  category: string
-  description: string
-  date: string
-}
+import type {Transaction} from '../lib/models'
 
 const CATEGORY_LABELS: Record<string, string> = {
   food: 'Comida', transport: 'Transporte', entertainment: 'Entretenimiento',
@@ -31,32 +23,6 @@ function fmt(n: number) {
   return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n)
 }
 
-function getLast3MonthsRange() {
-  const to = new Date()
-  const from = new Date()
-  from.setMonth(from.getMonth() - 2)
-  from.setDate(1)
-  return {
-    from: from.toISOString().split('T')[0],
-    to: to.toISOString().split('T')[0]
-  }
-}
-
-function groupByMonth(transactions: Transaction[]) {
-  const map: Record<string, { month: string, income: number, expense: number }> = {}
-
-  transactions.forEach(t => {
-    const [year, month] = t.date.split('-')
-    const key = `${year}-${month}`
-    const label = new Date(`${year}-${month}-01`).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' })
-
-    if (!map[key]) map[key] = { month: label, income: 0, expense: 0 }
-    if (t.type === 'income') map[key].income += t.amount
-    else map[key].expense += t.amount
-  })
-
-  return Object.values(map).sort((a, b) => a.month.localeCompare(b.month))
-}
 
 function groupByCategory(transactions: Transaction[]) {
   const map: Record<string, number> = {}
@@ -73,35 +39,19 @@ function groupByCategory(transactions: Transaction[]) {
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [loading, setLoading] = useState(true)
+  const {transactions,isLoading} = useTransactions()
 
-  useEffect(() => {
-    async function load() {
-      const { from, to } = getLast3MonthsRange()
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .gte('date', from)
-        .lte('date', to)
-        .order('date', { ascending: true })
-
-      if (!error && data) setTransactions(data)
-      setLoading(false)
-    }
-    load()
-  }, [])
-
-  const totalIncome  = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  
+  console.log(transactions)
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-  const balance      = totalIncome - totalExpense
+  const balance = totalIncome - totalExpense
 
-  const monthlyData   = groupByMonth(transactions)
-  const categoryData  = groupByCategory(transactions)
+  const categoryData = groupByCategory(transactions)
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] ?? 'ahí'
 
-  if (loading) return (
+  if (isLoading) return (
     <div className="flex items-center justify-center h-96">
       <div className="w-8 h-8 border-4 border-white/10 border-t-purple-500 rounded-full animate-spin" />
     </div>
@@ -146,87 +96,7 @@ export default function Dashboard() {
       ) : (
         <div className="grid grid-cols-2 gap-4">
           {/* Monthly Evolution */}
-          <div className="col-span-2 card p-6">
-            <h2 className="text-sm font-semibold text-gray-300 mb-4">Evolución mensual</h2>
-           <ResponsiveContainer width="100%" height={240}> {/* Subí ligeramente a 240px para dar aire a la leyenda */}
-    <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-      <defs>
-        {/* Optimizamos opacidades: un poco más bajas (0.2) evita que al cruzarse se opaque el fondo negro */}
-        <linearGradient id="gradIncome" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%"  stopColor="#4ade80" stopOpacity={0.2} />
-          <stop offset="95%" stopColor="#4ade80" stopOpacity={0} />
-        </linearGradient>
-        <linearGradient id="gradExpense" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%"  stopColor="#f87171" stopOpacity={0.2} />
-          <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
-        </linearGradient>
-      </defs>
-      
-      {/* Grid más sutil y solo horizontal para no saturar la vista */}
-      <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.03)" vertical={false} />
-      
-      <XAxis 
-        dataKey="month" 
-        tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} 
-        axisLine={false} 
-        tickLine={false}
-        dy={10} // Empuja las etiquetas un poco hacia abajo para que no peguen al gráfico
-      />
-      
-      <YAxis 
-        tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} 
-        axisLine={false} 
-        tickLine={false} 
-        tickFormatter={v => `$${(v/1000).toFixed(0)}k`}
-        dx={-5} // Separa ligeramente los números del gráfico
-      />
-      
-      <Tooltip
-        contentStyle={{ 
-          background: '#1a1a2e', // Un tono ligeramente más claro que tu fondo para que contraste (efecto elevación)
-          border: '1px solid rgba(255,255,255,0.08)', 
-          borderRadius: 12, 
-          fontSize: 13,
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)' // Sombra elegante
-        }}
-        labelStyle={{ color: 'rgba(255,255,255,0.6)', marginBottom: 6, fontWeight: 500 }}
-        itemStyle={{ paddingTop: 2 }}
-        formatter={(value: any) => [fmt(Number(value)), '']} // Dejamos que el nombre lo maneje el Key nativo de forma limpia
-        cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4' }} // Línea guía discontinua
-      />
-
-      {/* 2. Añadimos la Leyenda nativa con estilos premium */}
-      <Legend 
-        verticalAlign="top" 
-        align="right"
-        height={36}
-        iconType="circle"
-        iconSize={8}
-        wrapperStyle={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}
-      />
-      
-      {/* Áreas: Añadimos activeDot para que al pasar el mouse resalte el punto exacto */}
-      <Area 
-        type="monotone" 
-        dataKey="income"  
-        name="Ingresos" 
-        stroke="#4ade80" 
-        strokeWidth={2} 
-        fill="url(#gradIncome)" 
-        activeDot={{ r: 5, strokeWidth: 0, fill: '#4ade80' }}
-      />
-      <Area 
-        type="monotone" 
-        dataKey="expense" 
-        name="Gastos"   
-        stroke="#f87171" 
-        strokeWidth={2} 
-        fill="url(#gradExpense)" 
-        activeDot={{ r: 5, strokeWidth: 0, fill: '#f87171' }}
-      />
-    </AreaChart>
-  </ResponsiveContainer>
-          </div>
+          
 
           {/* Category Breakdown */}
           {categoryData.length > 0 && (
